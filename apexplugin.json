@@ -1,0 +1,33 @@
+{
+  "name" : "Texfield with one or two optional buttons",
+  "version" : "1.0",
+  "description" : "APEX item which creates a single item with one or two buttons on the right.",
+  "keywords" : ["plugin", "oracle", "item", "button"],
+  "homepage" : "https://github.com/josepcoves/apex_textfield_with_buttons",
+  "bugs" : {
+    "url" : "https://github.com/josepcoves/apex_textfield_with_buttons/issues",
+    "email" : "josepcoves@relational.es"
+  },
+  "license" : "MIT",
+  "author" : {
+    "name" : "Josep Coves",
+    "email" : "josepcoves@relational.es",
+    "url" : "http://www.relational.es/"
+  },
+  "repository" : {
+    "type" : "git",
+    "url" : "https://github.com/josepcoves/apex_textfield_with_buttons.git"
+  },
+ "oracle" : {                                            
+    "versions" : ["11.2.0.1", "12.1.0.1"],
+    "apex" : {
+      "versions" : ["4.0.1","5.0.0","5.0.1"],
+      "plugin" : {
+        "internalName" : "ES.RELATIONAL.JOSEPCOVES.TEXTFILEDICON",
+        "type" : "item",
+        "demo" : "https://apex.oracle.com/pls/apex/f?p=JOSEPCOVES:5",
+        "previewImage" : "https://raw.githubusercontent.com/josepcoves/apex_textfield_with_buttons/master/source/textfield_demo.png"
+      }
+    }
+  }
+}
