@@ -5,17 +5,17 @@ whenever sqlerror exit sql.sqlcode rollback
 -- ORACLE Application Express (APEX) export file
 --
 -- You should run the script connected to SQL*Plus as the Oracle user
--- APEX_050000 or as the owner (parsing schema) of the application.
+-- APEX_050100 or as the owner (parsing schema) of the application.
 --
 -- NOTE: Calls to apex_application_install override the defaults below.
 --
 --------------------------------------------------------------------------------
 begin
 wwv_flow_api.import_begin (
- p_version_yyyy_mm_dd=>'2013.01.01'
-,p_release=>'5.0.2.00.07'
+ p_version_yyyy_mm_dd=>'2016.08.24'
+,p_release=>'5.1.0.00.45'
 ,p_default_workspace_id=>13707805413010735447
-,p_default_application_id=>52892
+,p_default_application_id=>528922
 ,p_default_owner=>'JOSEPCOVES'
 );
 end;
@@ -28,12 +28,13 @@ end;
 prompt --application/shared_components/plugins/item_type/es_relational_josepcoves_textfiledicon
 begin
 wwv_flow_api.create_plugin(
- p_id=>wwv_flow_api.id(13895177690862016893)
+ p_id=>wwv_flow_api.id(58283796965888967558)
 ,p_plugin_type=>'ITEM TYPE'
 ,p_name=>'ES.RELATIONAL.JOSEPCOVES.TEXTFILEDICON'
 ,p_display_name=>'Relational: Textfiled with buttons'
 ,p_supported_ui_types=>'DESKTOP:JQM_SMARTPHONE'
-,p_plsql_code=>wwv_flow_utilities.join(wwv_flow_t_varchar2(
+,p_supported_component_types=>'APEX_APPLICATION_PAGE_ITEMS'
+,p_plsql_code=>wwv_flow_string.join(wwv_flow_t_varchar2(
 '  function render_item (',
 '    p_item                in apex_plugin.t_page_item,',
 '    p_plugin              in apex_plugin.t_plugin,',
@@ -70,6 +71,8 @@ wwv_flow_api.create_plugin(
 '    v_accio_boto2 varchar2(9000);',
 '    ',
 '    v_item_attrib varchar2(9000);',
+'    ',
+'    v_modal_url varchar2(9000);',
 '  BEGIN',
 '    ',
 '    IF apex_application.g_debug THEN',
@@ -106,7 +109,8 @@ wwv_flow_api.create_plugin(
 '      end if;',
 '      ',
 '      htp.p(',
-'              ''<input type="text" ',
+'              ''<div class="t-textfiledwithbutton">',
+'                <input type="text" ',
 '                      name="''||v_page_item_name||''" ',
 '                      id="''||p_item.name||''" ',
 '                      class="text_field" ',
@@ -121,6 +125,14 @@ wwv_flow_api.create_plugin(
 '        if (p_boto_url is null) then ',
 '          --v_accio_boto := ''javascript:apex.submit({request:''''''||nvl(p_submit_request,p_item.name)||'''''',set:{''||p_item.name||'':$(''''#''||p_item.name||'''''').val()}});'';',
 '          v_accio_boto := ''javascript:apex.submit({request:''''''||nvl(p_submit_request,p_item.name)||''''''});'';',
+'        else           ',
+'             v_modal_url :=  APEX_UTIL.PREPARE_URL(p_boto_url);',
+'           ',
+'            ',
+'            if instr(v_modal_url,''javascript'' ) = 0 then ',
+'                 v_modal_url := ''javascript:apex.navigation.redirect(''''''||v_modal_url||'''''')'' ;',
+'             end if;',
+'             v_accio_boto := v_modal_url;',
 '        end if;',
 '        /**** Primer botó */',
 '        htp.p(''<span>             ',
@@ -138,6 +150,14 @@ wwv_flow_api.create_plugin(
 '        if (p_num_botons >= 2) then',
 '          if (p_boto2_url is null) then ',
 '            v_accio_boto2 := v_accio_boto;',
+'          else',
+'            v_modal_url :=  APEX_UTIL.PREPARE_URL(p_boto2_url);',
+'           ',
+'            ',
+'            if instr(v_modal_url,''javascript'' ) = 0 then ',
+'                 v_modal_url := ''javascript:apex.navigation.redirect(''''''||v_modal_url||'''''')'' ;',
+'             end if;',
+'             v_accio_boto2 := v_modal_url;',
 '          end if;',
 '          htp.p(''',
 '                <button class="t-Button t-Button--icon t-Button--iconRight t-Button--small ''||p_boto2_css_attrib||''" onclick="''||v_accio_boto2||''" type="button" title="''||p_boto2_title||''" ''||p_boto2_attrib||''>',
@@ -152,6 +172,7 @@ wwv_flow_api.create_plugin(
 '        end if;',
 '        htp.p(''</span>'');',
 '       end if;',
+'       htp.p(''</div>'');',
 '            ',
 ' ',
 '      /****** JAVASCRIPT **************/      ',
@@ -170,16 +191,18 @@ wwv_flow_api.create_plugin(
 '  ',
 '  ',
 '  '))
+,p_api_version=>1
 ,p_render_function=>'render_item'
 ,p_standard_attributes=>'VISIBLE:FORM_ELEMENT:SESSION_STATE:READONLY:QUICKPICK:SOURCE:FORMAT_MASK_DATE:ELEMENT:WIDTH:PLACEHOLDER:ENCRYPT'
 ,p_substitute_attributes=>true
 ,p_subscribe_plugin_settings=>true
-,p_help_text=>wwv_flow_utilities.join(wwv_flow_t_varchar2(
+,p_help_text=>wwv_flow_string.join(wwv_flow_t_varchar2(
 '<b>',
 '  <h1>RELATIONAL: Textfield with buttons </h1>',
 '  <p>RELATIONAL </p>',
 '  <p>Josep Coves - josepcoves@relational.es</p>',
 '  <p>Creation Date: September - 2015</p>',
+'  <p>Update Date: March - 2017</p>',
 '  <br>',
 '  <br>',
 '  <h2><i>History review:</i></h2>',
@@ -192,12 +215,28 @@ wwv_flow_api.create_plugin(
 '</ul',
 '<p><i>',
 'Additional info:<br>',
+'<h5>',
+'    Version 1.1 - 2016-12-14',
+'</h5>',
+'<p>',
+'</p><ul>',
+'    <li>Fixed bug: button url not null, thanks to Rao Bhaskara!</li>',
+'</ul>',
+'<h5>',
+'    Version 1.2 - 2017-03-24',
+'</h5>',
+'<p>',
+'</p><ul>',
+'    <li>Fixed bug: correct button positioning with new UT with APEX 5.1 </li>',
+'</ul>',
+'<p></p>',
 '</p></i></br>'))
-,p_version_identifier=>'1.0'
+,p_version_identifier=>'1.2'
+,p_about_url=>'http://ww.relational.es'
 );
 wwv_flow_api.create_plugin_attribute(
- p_id=>wwv_flow_api.id(13895180762425128343)
-,p_plugin_id=>wwv_flow_api.id(13895177690862016893)
+ p_id=>wwv_flow_api.id(58283800037452079008)
+,p_plugin_id=>wwv_flow_api.id(58283796965888967558)
 ,p_attribute_scope=>'COMPONENT'
 ,p_attribute_sequence=>1
 ,p_display_sequence=>10
@@ -207,15 +246,16 @@ wwv_flow_api.create_plugin_attribute(
 ,p_default_value=>'fa-search'
 ,p_supported_ui_types=>'DESKTOP:JQM_SMARTPHONE'
 ,p_is_translatable=>false
-,p_depending_on_attribute_id=>wwv_flow_api.id(13895210130881113600)
+,p_depending_on_attribute_id=>wwv_flow_api.id(58283829405908064265)
+,p_depending_on_has_to_exist=>true
 ,p_depending_on_condition_type=>'IN_LIST'
 ,p_depending_on_expression=>'1,2'
 ,p_examples=>'fa-search'
 ,p_help_text=>'Font awesome Icon (only if using Universal Theme)'
 );
 wwv_flow_api.create_plugin_attribute(
- p_id=>wwv_flow_api.id(13895182516417304919)
-,p_plugin_id=>wwv_flow_api.id(13895177690862016893)
+ p_id=>wwv_flow_api.id(58283801791444255584)
+,p_plugin_id=>wwv_flow_api.id(58283796965888967558)
 ,p_attribute_scope=>'COMPONENT'
 ,p_attribute_sequence=>2
 ,p_display_sequence=>20
@@ -224,14 +264,15 @@ wwv_flow_api.create_plugin_attribute(
 ,p_is_required=>false
 ,p_supported_ui_types=>'DESKTOP:JQM_SMARTPHONE'
 ,p_is_translatable=>false
-,p_depending_on_attribute_id=>wwv_flow_api.id(13895210130881113600)
+,p_depending_on_attribute_id=>wwv_flow_api.id(58283829405908064265)
+,p_depending_on_has_to_exist=>true
 ,p_depending_on_condition_type=>'IN_LIST'
 ,p_depending_on_expression=>'1,2'
 ,p_help_text=>'URL which will use button, if null uses item name as request.'
 );
 wwv_flow_api.create_plugin_attribute(
- p_id=>wwv_flow_api.id(13895183222765323443)
-,p_plugin_id=>wwv_flow_api.id(13895177690862016893)
+ p_id=>wwv_flow_api.id(58283802497792274108)
+,p_plugin_id=>wwv_flow_api.id(58283796965888967558)
 ,p_attribute_scope=>'COMPONENT'
 ,p_attribute_sequence=>3
 ,p_display_sequence=>30
@@ -240,15 +281,16 @@ wwv_flow_api.create_plugin_attribute(
 ,p_is_required=>false
 ,p_supported_ui_types=>'DESKTOP:JQM_SMARTPHONE'
 ,p_is_translatable=>false
-,p_depending_on_attribute_id=>wwv_flow_api.id(13895210130881113600)
+,p_depending_on_attribute_id=>wwv_flow_api.id(58283829405908064265)
+,p_depending_on_has_to_exist=>true
 ,p_depending_on_condition_type=>'IN_LIST'
 ,p_depending_on_expression=>'1,2'
 ,p_examples=>'t-Button--hot'
 ,p_help_text=>'CSS attributes'
 );
 wwv_flow_api.create_plugin_attribute(
- p_id=>wwv_flow_api.id(13895184935288917816)
-,p_plugin_id=>wwv_flow_api.id(13895177690862016893)
+ p_id=>wwv_flow_api.id(58283804210315868481)
+,p_plugin_id=>wwv_flow_api.id(58283796965888967558)
 ,p_attribute_scope=>'COMPONENT'
 ,p_attribute_sequence=>4
 ,p_display_sequence=>2
@@ -259,8 +301,8 @@ wwv_flow_api.create_plugin_attribute(
 ,p_help_text=>'Request submitted on enter. If blank doesn''t associate submit on enter key event'
 );
 wwv_flow_api.create_plugin_attribute(
- p_id=>wwv_flow_api.id(13895185572500935877)
-,p_plugin_id=>wwv_flow_api.id(13895177690862016893)
+ p_id=>wwv_flow_api.id(58283804847527886542)
+,p_plugin_id=>wwv_flow_api.id(58283796965888967558)
 ,p_attribute_scope=>'COMPONENT'
 ,p_attribute_sequence=>5
 ,p_display_sequence=>50
@@ -268,14 +310,15 @@ wwv_flow_api.create_plugin_attribute(
 ,p_attribute_type=>'TEXT'
 ,p_is_required=>false
 ,p_is_translatable=>false
-,p_depending_on_attribute_id=>wwv_flow_api.id(13895210130881113600)
+,p_depending_on_attribute_id=>wwv_flow_api.id(58283829405908064265)
+,p_depending_on_has_to_exist=>true
 ,p_depending_on_condition_type=>'IN_LIST'
 ,p_depending_on_expression=>'1,2'
 ,p_help_text=>'Text name of button'
 );
 wwv_flow_api.create_plugin_attribute(
- p_id=>wwv_flow_api.id(13895186220318938162)
-,p_plugin_id=>wwv_flow_api.id(13895177690862016893)
+ p_id=>wwv_flow_api.id(58283805495345888827)
+,p_plugin_id=>wwv_flow_api.id(58283796965888967558)
 ,p_attribute_scope=>'COMPONENT'
 ,p_attribute_sequence=>6
 ,p_display_sequence=>60
@@ -283,14 +326,15 @@ wwv_flow_api.create_plugin_attribute(
 ,p_attribute_type=>'TEXT'
 ,p_is_required=>false
 ,p_is_translatable=>false
-,p_depending_on_attribute_id=>wwv_flow_api.id(13895210130881113600)
+,p_depending_on_attribute_id=>wwv_flow_api.id(58283829405908064265)
+,p_depending_on_has_to_exist=>true
 ,p_depending_on_condition_type=>'IN_LIST'
 ,p_depending_on_expression=>'1,2'
 ,p_help_text=>'Title'
 );
 wwv_flow_api.create_plugin_attribute(
- p_id=>wwv_flow_api.id(13895186798392939606)
-,p_plugin_id=>wwv_flow_api.id(13895177690862016893)
+ p_id=>wwv_flow_api.id(58283806073419890271)
+,p_plugin_id=>wwv_flow_api.id(58283796965888967558)
 ,p_attribute_scope=>'COMPONENT'
 ,p_attribute_sequence=>7
 ,p_display_sequence=>70
@@ -298,13 +342,14 @@ wwv_flow_api.create_plugin_attribute(
 ,p_attribute_type=>'TEXT'
 ,p_is_required=>false
 ,p_is_translatable=>false
-,p_depending_on_attribute_id=>wwv_flow_api.id(13895210130881113600)
+,p_depending_on_attribute_id=>wwv_flow_api.id(58283829405908064265)
+,p_depending_on_has_to_exist=>true
 ,p_depending_on_condition_type=>'IN_LIST'
 ,p_depending_on_expression=>'1,2'
 );
 wwv_flow_api.create_plugin_attribute(
- p_id=>wwv_flow_api.id(13895210130881113600)
-,p_plugin_id=>wwv_flow_api.id(13895177690862016893)
+ p_id=>wwv_flow_api.id(58283829405908064265)
+,p_plugin_id=>wwv_flow_api.id(58283796965888967558)
 ,p_attribute_scope=>'COMPONENT'
 ,p_attribute_sequence=>8
 ,p_display_sequence=>5
@@ -316,30 +361,30 @@ wwv_flow_api.create_plugin_attribute(
 ,p_lov_type=>'STATIC'
 );
 wwv_flow_api.create_plugin_attr_value(
- p_id=>wwv_flow_api.id(13895217868359130089)
-,p_plugin_attribute_id=>wwv_flow_api.id(13895210130881113600)
+ p_id=>wwv_flow_api.id(58283837143386080754)
+,p_plugin_attribute_id=>wwv_flow_api.id(58283829405908064265)
 ,p_display_sequence=>10
 ,p_display_value=>'No buttons'
 ,p_return_value=>'0'
 );
 wwv_flow_api.create_plugin_attr_value(
- p_id=>wwv_flow_api.id(13895210683368114300)
-,p_plugin_attribute_id=>wwv_flow_api.id(13895210130881113600)
+ p_id=>wwv_flow_api.id(58283829958395064965)
+,p_plugin_attribute_id=>wwv_flow_api.id(58283829405908064265)
 ,p_display_sequence=>15
 ,p_display_value=>'1 button'
 ,p_return_value=>'1'
 ,p_is_quick_pick=>true
 );
 wwv_flow_api.create_plugin_attr_value(
- p_id=>wwv_flow_api.id(13895211047749114630)
-,p_plugin_attribute_id=>wwv_flow_api.id(13895210130881113600)
+ p_id=>wwv_flow_api.id(58283830322776065295)
+,p_plugin_attribute_id=>wwv_flow_api.id(58283829405908064265)
 ,p_display_sequence=>20
 ,p_display_value=>'2 buttons'
 ,p_return_value=>'2'
 );
 wwv_flow_api.create_plugin_attribute(
- p_id=>wwv_flow_api.id(13895191557265056856)
-,p_plugin_id=>wwv_flow_api.id(13895177690862016893)
+ p_id=>wwv_flow_api.id(58283810832292007521)
+,p_plugin_id=>wwv_flow_api.id(58283796965888967558)
 ,p_attribute_scope=>'COMPONENT'
 ,p_attribute_sequence=>9
 ,p_display_sequence=>90
@@ -347,13 +392,14 @@ wwv_flow_api.create_plugin_attribute(
 ,p_attribute_type=>'ICON'
 ,p_is_required=>false
 ,p_is_translatable=>false
-,p_depending_on_attribute_id=>wwv_flow_api.id(13895210130881113600)
+,p_depending_on_attribute_id=>wwv_flow_api.id(58283829405908064265)
+,p_depending_on_has_to_exist=>true
 ,p_depending_on_condition_type=>'IN_LIST'
 ,p_depending_on_expression=>'2'
 );
 wwv_flow_api.create_plugin_attribute(
- p_id=>wwv_flow_api.id(13895193153208066776)
-,p_plugin_id=>wwv_flow_api.id(13895177690862016893)
+ p_id=>wwv_flow_api.id(58283812428235017441)
+,p_plugin_id=>wwv_flow_api.id(58283796965888967558)
 ,p_attribute_scope=>'COMPONENT'
 ,p_attribute_sequence=>10
 ,p_display_sequence=>100
@@ -361,13 +407,14 @@ wwv_flow_api.create_plugin_attribute(
 ,p_attribute_type=>'LINK'
 ,p_is_required=>false
 ,p_is_translatable=>false
-,p_depending_on_attribute_id=>wwv_flow_api.id(13895210130881113600)
+,p_depending_on_attribute_id=>wwv_flow_api.id(58283829405908064265)
+,p_depending_on_has_to_exist=>true
 ,p_depending_on_condition_type=>'IN_LIST'
 ,p_depending_on_expression=>'2'
 );
 wwv_flow_api.create_plugin_attribute(
- p_id=>wwv_flow_api.id(13895194270105069241)
-,p_plugin_id=>wwv_flow_api.id(13895177690862016893)
+ p_id=>wwv_flow_api.id(58283813545132019906)
+,p_plugin_id=>wwv_flow_api.id(58283796965888967558)
 ,p_attribute_scope=>'COMPONENT'
 ,p_attribute_sequence=>11
 ,p_display_sequence=>110
@@ -375,13 +422,14 @@ wwv_flow_api.create_plugin_attribute(
 ,p_attribute_type=>'TEXT'
 ,p_is_required=>false
 ,p_is_translatable=>false
-,p_depending_on_attribute_id=>wwv_flow_api.id(13895210130881113600)
+,p_depending_on_attribute_id=>wwv_flow_api.id(58283829405908064265)
+,p_depending_on_has_to_exist=>true
 ,p_depending_on_condition_type=>'IN_LIST'
 ,p_depending_on_expression=>'2'
 );
 wwv_flow_api.create_plugin_attribute(
- p_id=>wwv_flow_api.id(13895195340105072243)
-,p_plugin_id=>wwv_flow_api.id(13895177690862016893)
+ p_id=>wwv_flow_api.id(58283814615132022908)
+,p_plugin_id=>wwv_flow_api.id(58283796965888967558)
 ,p_attribute_scope=>'COMPONENT'
 ,p_attribute_sequence=>12
 ,p_display_sequence=>120
@@ -389,13 +437,14 @@ wwv_flow_api.create_plugin_attribute(
 ,p_attribute_type=>'TEXT'
 ,p_is_required=>false
 ,p_is_translatable=>false
-,p_depending_on_attribute_id=>wwv_flow_api.id(13895210130881113600)
+,p_depending_on_attribute_id=>wwv_flow_api.id(58283829405908064265)
+,p_depending_on_has_to_exist=>true
 ,p_depending_on_condition_type=>'IN_LIST'
 ,p_depending_on_expression=>'2'
 );
 wwv_flow_api.create_plugin_attribute(
- p_id=>wwv_flow_api.id(13895196506301073748)
-,p_plugin_id=>wwv_flow_api.id(13895177690862016893)
+ p_id=>wwv_flow_api.id(58283815781328024413)
+,p_plugin_id=>wwv_flow_api.id(58283796965888967558)
 ,p_attribute_scope=>'COMPONENT'
 ,p_attribute_sequence=>13
 ,p_display_sequence=>130
@@ -403,13 +452,14 @@ wwv_flow_api.create_plugin_attribute(
 ,p_attribute_type=>'TEXT'
 ,p_is_required=>false
 ,p_is_translatable=>false
-,p_depending_on_attribute_id=>wwv_flow_api.id(13895210130881113600)
+,p_depending_on_attribute_id=>wwv_flow_api.id(58283829405908064265)
+,p_depending_on_has_to_exist=>true
 ,p_depending_on_condition_type=>'IN_LIST'
 ,p_depending_on_expression=>'2'
 );
 wwv_flow_api.create_plugin_attribute(
- p_id=>wwv_flow_api.id(13895197610795075447)
-,p_plugin_id=>wwv_flow_api.id(13895177690862016893)
+ p_id=>wwv_flow_api.id(58283816885822026112)
+,p_plugin_id=>wwv_flow_api.id(58283796965888967558)
 ,p_attribute_scope=>'COMPONENT'
 ,p_attribute_sequence=>14
 ,p_display_sequence=>140
@@ -417,7 +467,8 @@ wwv_flow_api.create_plugin_attribute(
 ,p_attribute_type=>'TEXT'
 ,p_is_required=>false
 ,p_is_translatable=>false
-,p_depending_on_attribute_id=>wwv_flow_api.id(13895210130881113600)
+,p_depending_on_attribute_id=>wwv_flow_api.id(58283829405908064265)
+,p_depending_on_has_to_exist=>true
 ,p_depending_on_condition_type=>'IN_LIST'
 ,p_depending_on_expression=>'2'
 );
